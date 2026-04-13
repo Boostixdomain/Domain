@@ -1,0 +1,81 @@
+<script>
+if (localStorage.getItem("isAdmin") !== "true") {
+  alert("Access Denied!");
+  window.location.href = "login.html";
+}
+</script>
+<DOCTYPE html>
+<html>
+<head>
+  <title>Admin Panel</title>
+</head>
+<body>
+
+<h2>async function addProduct() {
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const file = document.getElementById("imageFile").files[0];
+
+  if (!file) {
+    alert("Select image");
+    return;
+  }
+
+  const storageRef = storage.ref("products/" + file.name);
+  await storageRef.put(file);
+
+  const imageURL = await storageRef.getDownloadURL();
+
+  await db.collection("products").add({
+    name: name,
+    price: price,
+    image: imageURL
+  });
+
+  alert("Product uploaded 🚀");
+}</h2>
+
+<input id="name" placeholder="Account Name"><br><br>
+<input id="price" placeholder="Price"><br><br>
+
+<!-- 📸 Upload from Gallery -->
+<input type="file" id="imageFile" accept="image/*"><br><br>
+
+<button onclick="addProduct()">Add</button>
+
+<script>
+function addProduct() {
+  const name = document.getElementById("name").value;
+  const price = document.getElementById("price").value;
+  const file = document.getElementById("imageFile").files[0];
+
+  if (!file) {
+    alert("Please select an image");
+    return;
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = function(e) {
+    const imageBase64 = e.target.result;
+
+    // Save product (for now localStorage)
+    const product = {
+      name: name,
+      price: price,
+      image: imageBase64
+    };
+
+    let products = JSON.parse(localStorage.getItem("products")) || [];
+    products.push(product);
+    localStorage.setItem("products", JSON.stringify(products));
+
+    alert("Product Added ✅");
+  };
+
+  reader.readAsDataURL(file);
+}
+</script>
+
+</body>
+</html>
